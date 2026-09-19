@@ -1,2 +1,29 @@
 # KunOS
-A very simple assembly-language-based operating system
+KunOS是一个纯汇编语言编写的小型操作系统，镜像很小，功能不多，没有什么实用性。但是对于那些想要入门简易操作系统制作的，还是有一定的学习价值。
+我搭了个网页虚拟机，你可以[点击此处](https://hellopgrmm.github.io/simul/vit86?sys=ikun&type=floppy)来在线体验KunOS。
+## 功能概览
+命令行界面、有颜色支持、可以跳转到外部应用程序。
+### 可用命令
+|命令|作用|
+|--|--|
+|time|显示时间|
+|clear|清屏|
+|reb|重新启动|
+|info|系统信息|
+|blue|彩蛋之一|
+|date|显示日期|
+|hlt|关机/挂机|
+|chusr|切换用户名|
+|fsw,fsr,fsl|伪文件系统命令（想要实现真的文件系统还是有难度）|
+|ikun|彩蛋之二|
+|out <文字>|输出一段文字|
+|count|计数功能|
+|ctest|颜色显示测试|
+|al|应用列表|
+|debug|调试功能，显示一些寄存器的值|
+|help|帮助命令|
+## 编译运行
+请确保你的电脑安装了NASM编译器和QEMU虚拟机，NASM我已经打包在源代码里了可以不用安装，QEMU虚拟机则要另外下载（官网：qemu.org），或者[点击这个链接](https://soft.3dmgame.com/down/356512.html)下载QEMU 9.0.0
+## 其它注意事项
+KunOS为业余操作系统项目，只是个人爱好，各位可以随意下载代码、修改、分发。
+本说明最后修改时间：2026年9月19日17:07:39

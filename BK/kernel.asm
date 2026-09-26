@@ -35,7 +35,7 @@ start:
 	call getusername
 	
 	mov byte [filecount],0
-;��ѭ��
+;Ö÷Ñ­»·
 kunkun:
 	mov si,uinput
 	mov al,0x0b
@@ -206,6 +206,10 @@ pcmd:
 	mov si,capp_calc
 	call strcmp
 	jc .calcapp
+
+	mov si,capp_fm
+	call strcmp
+	jc .fmapp
 	;ok
 	mov si,cal
 	call strcmp
@@ -334,6 +338,13 @@ pcmd:
 	mov cl,19
 	call runprog
 	call 0x0000:0x9E01
+	ret
+.fmapp:
+	pusha
+	mov bx,0x9E02
+	mov cl,25
+	call runprog
+	call 0x0000:0x9E02
 	ret
 .hlt:
 	call pline
@@ -566,7 +577,7 @@ fs_write:
 	call readl
 	mov bx,filetable
 	mov cx,0
-.findgunmu:;��ĸ
+.findgunmu:;¹÷Ä¸
 	cmp cx,MAX_FILES
 	jge .full
 	mov al,[bx]
@@ -1045,6 +1056,7 @@ ccount db 'count',0
 ccolortest db 'ctest',0
 capp db 'sd',0
 capp_calc db 'calc',0
+capp_fm db 'fm',0
 cal db 'al',0
 cdebug db 'debug',0
 
@@ -1119,7 +1131,7 @@ comma db ", ",0
 infoinfo db 0x0A,0x0D,'KunOS version 2.1(2026/8/28 13:09:50)',0x0A,0x0D,0
 infoinfo2 db '[Update log]',0x0A,0x0D,'File system simulation',0x0A,0x0D,'colorful text display',0x0A,0x0D,'"out" and "count" command',0x0A,0x0D,0
 infoinfo3 db '[Personal Website]',0x0A,0x0D,'https://hellopgrmm.github.io/',0x0A,0x0D,'Have fun,bro!',0x0A,0x0D,0x0A,0x0D,0
-infoapl db 'sd:Simple Draw Program',0x0A,0x0D,'calc:Calculator',0x0d,0x0a,0
+infoapl db 'sd:Simple Draw Program',0x0A,0x0D,'calc:Calculator',0x0d,0x0a,0x0d,0x0a,'fm:Bascella File Manager',0x0d,0x0a,0
 
 uinput times 16 db 0
 input times 64 db 0

@@ -24,6 +24,9 @@ start:
 	mov ss,ax
 	mov sp,0x7e00
 	
+	mov ah,00h
+	mov al,12h
+	int 10h
 	;printf
 	
 	mov si,msg
@@ -31,11 +34,10 @@ start:
 	call cprintf
 	
 	call debugit
-	
 	call getusername
 	
 	mov byte [filecount],0
-;Ö÷Ñ­»·
+;��ѭ��
 kunkun:
 	mov si,uinput
 	mov al,0x0b
@@ -111,6 +113,7 @@ readl:
 	cmp al,0x08
 	je .bks
 	mov ah,0x0e
+	mov bx,0x0007
 	int 0x10
 	stosb
 	jmp .loop
@@ -196,17 +199,21 @@ pcmd:
 	
 	mov si,ccount
 	call strcmp
-	jc .jishu	
+	jc .jishu
 	
 	;applications command
 	mov si,capp
 	call strcmp
 	jc .dapp
 	
+	mov si,crand
+	call strcmp
+	jc .random
+	
 	mov si,capp_calc
 	call strcmp
 	jc .calcapp
-
+	
 	mov si,capp_fm
 	call strcmp
 	jc .fmapp
@@ -325,12 +332,19 @@ pcmd:
 	call fs_read
 	call pline
 	ret
+.random:
+	pusha
+	mov bx,0x9E03
+	mov cl,32
+	call runprog
+	jmp 0x0000:0x9E03
+	ret	
 .dapp:
 	pusha
 	mov bx,0x9E00
 	mov cl,22
 	call runprog
-	call 0x0000:0x9E00
+	jmp 0x0000:0x9E00
 	ret
 .calcapp:
 	pusha
@@ -577,7 +591,7 @@ fs_write:
 	call readl
 	mov bx,filetable
 	mov cx,0
-.findgunmu:;¹÷Ä¸
+.findgunmu:;��ĸ
 	cmp cx,MAX_FILES
 	jge .full
 	mov al,[bx]
@@ -732,14 +746,13 @@ strcmp_pro:
     pop di
     pop si
     ret
-    
 runprog:
-	mov ah,0x00
-    mov dl,0x00
-    int 0x13
-	jc .lerr
+	;mov ah,0x00
+    ;mov dl,0x00
+    ;int 0x13
+	;jc .lerr
 	mov ax,0x0000
-	mov es,ax
+	mov ds,ax
 	;mov bx,0x9E00
 	mov ah,0x02
 	mov al,3
@@ -785,10 +798,9 @@ pbcdb:
     pop ax
     ret
 printc:
-    push ax
     mov ah,0x0e
+    mov bx,0x0007
     int 0x10
-    pop ax
     ret
 pline:
     mov al,0x0d
@@ -973,10 +985,10 @@ cprintf:
 	int 0x10
 	mov dl,0
 	inc dh
-	cmp dh,25
+	cmp dh,30
 	jl .setcur
 	call scrollit
-	mov dh,24
+	mov dh,29
 .setcur:
 	mov ah,0x02
 	int 0x10
@@ -993,9 +1005,9 @@ scrollit:
 	push dx
 	mov ah,0x06
 	mov al,1
-	mov bh,0x07
+	mov bh,0x00
 	mov cx,0
-	mov dx,0x184f
+	mov dx,0x1d4f
 	int 0x10
 	pop dx
 	pop cx
@@ -1005,9 +1017,9 @@ scrollit:
 cls:
 	mov ah,0x06
 	mov al,0
-	mov bh,0x07
+	mov bh,0x00
 	mov cx,0
-	mov dx,0x184f
+	mov dx,0x1d4f
 	int 0x10
 	mov ah,0x02
 	mov bh,0
@@ -1059,6 +1071,7 @@ capp_calc db 'calc',0
 capp_fm db 'fm',0
 cal db 'al',0
 cdebug db 'debug',0
+crand db 'gn',0
 
 boot_drive db 0x80
 sector_s db 0
@@ -1128,10 +1141,10 @@ exampletext db 'Kun',0
 mcfrom db "From:",0
 mcto db "To:",0
 comma db ", ",0
-infoinfo db 0x0A,0x0D,'KunOS version 2.1(2026/8/28 13:09:50)',0x0A,0x0D,0
-infoinfo2 db '[Update log]',0x0A,0x0D,'File system simulation',0x0A,0x0D,'colorful text display',0x0A,0x0D,'"out" and "count" command',0x0A,0x0D,0
+infoinfo db 0x0A,0x0D,'KunOS version 3(2026/10/18 16:15:23)',0x0A,0x0D,0
+infoinfo2 db '[Update log]',0x0A,0x0D,'games,file manager,etc...',0x0A,0x0D,'colorful text display',0x0A,0x0D,0
 infoinfo3 db '[Personal Website]',0x0A,0x0D,'https://hellopgrmm.github.io/',0x0A,0x0D,'Have fun,bro!',0x0A,0x0D,0x0A,0x0D,0
-infoapl db 'sd:Simple Draw Program',0x0A,0x0D,'calc:Calculator',0x0d,0x0a,0x0d,0x0a,'fm:Bascella File Manager',0x0d,0x0a,0
+infoapl db 'sd calc fm gn',0x0A,0x0D,0
 
 uinput times 16 db 0
 input times 64 db 0

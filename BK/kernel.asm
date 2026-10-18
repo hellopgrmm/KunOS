@@ -1,3 +1,35 @@
+;
+ ;                    _ooOoo_
+ ;                   o8888888o
+ ;                   88" . "88
+ ;                   (| -_- |)
+ ;                    O\ = /O
+ ;                ____/`---'\____
+ ;              .   ' \\| |// `.
+ ;               / \\||| : |||// \
+ ;             / _||||| -:- |||||- \
+ ;               | | \\\ - /// | |
+ ;             | \_| ''\---/'' | |
+ ;              \ .-\__ `-` ___/-. /
+ ;           ___`. .' /--.--\ `. . __
+ ;        ."" '< `.___\_<|>_/___.' >'"".
+ ;       | | : `- \`.;`\ _ /`;.`/ - ` : | |
+ ;         \ \ `-. \_ __\ /__ _/ .-` / /
+ ; ======`-.____`-.___\_____/___.-`____.-'======
+ ;                    `=---='
+ ;
+ ; .............................................
+ ;          佛祖保佑             永无BUG
+ ;  佛曰:
+ ;          写字楼里写字间，写字间里程序员；
+ ;          程序人员写程序，又拿程序换酒钱。
+ ;          酒醒只在网上坐，酒醉还来网下眠；
+ ;          酒醉酒醒日复日，网上网下年复年。
+ ;          但愿老死电脑间，不愿鞠躬老板前；
+ ;          奔驰宝马贵者趣，公交自行程序员。
+ ;          别人笑我忒疯癫，我笑自己命太贱；
+ ;          不见满街漂亮妹，哪个归得程序员？
+ ;
 [org 0x7e00]
 [bits 16]
 ;color table
@@ -37,7 +69,7 @@ start:
 	call getusername
 	
 	mov byte [filecount],0
-;��ѭ��
+;主循环
 kunkun:
 	mov si,uinput
 	mov al,0x0b
@@ -217,6 +249,10 @@ pcmd:
 	mov si,capp_fm
 	call strcmp
 	jc .fmapp
+	
+	mov si,cgra
+	call strcmp
+	jc .gratest
 	;ok
 	mov si,cal
 	call strcmp
@@ -332,31 +368,34 @@ pcmd:
 	call fs_read
 	call pline
 	ret
+.gratest:
+	call gratest
+	ret		
 .random:
 	pusha
 	mov bx,0x9E03
-	mov cl,32
+	mov cl,33
 	call runprog
 	jmp 0x0000:0x9E03
 	ret	
 .dapp:
 	pusha
 	mov bx,0x9E00
-	mov cl,22
+	mov cl,23
 	call runprog
 	jmp 0x0000:0x9E00
 	ret
 .calcapp:
 	pusha
 	mov bx,0x9E01
-	mov cl,19
+	mov cl,20
 	call runprog
 	call 0x0000:0x9E01
 	ret
 .fmapp:
 	pusha
 	mov bx,0x9E02
-	mov cl,25
+	mov cl,26
 	call runprog
 	call 0x0000:0x9E02
 	ret
@@ -577,6 +616,68 @@ printn:
     mov al,WHITE
 	call cprintf
     ret
+;graphic
+gratest:
+    call cls
+	mov ah,00h
+	mov al,13h
+	int 10h
+	mov cx,50
+	mov dx,50
+	mov bx,80
+	mov si,80
+	mov al,0x09
+	call drect
+	mov cx,80
+	mov dx,80
+	mov bx,110
+	mov si,110
+	mov al,0x0d
+	call drect
+	mov cx,110
+	mov dx,110
+	mov bx,140
+	mov si,140
+	mov al,0x0e
+	call drect
+	mov cx,140
+	mov dx,140
+	mov bx,170
+	mov si,170
+	mov al,0x02
+	call drect
+	mov cx,170
+	mov dx,170
+	mov bx,200
+	mov si,200
+	mov al,0x04
+	call drect
+	mov si,anykey
+	mov al,0x0f
+	call cprintf
+	mov ah,00h
+	int 16h
+	jmp 0x7e00
+	ret
+drect:
+	;mov cx,50
+	;mov dx,50
+	;mov bx,100
+	;mov si,100
+	nop
+.rectr:
+	mov ah,0ch
+	int 10h
+	inc cx
+	cmp cx,bx
+	jbe .rectr
+	mov cx,50
+	inc dx
+	cmp dx,si
+	jbe .rectr
+.done:
+	ret
+anykey db 'Hey,do you see the bitmap?',0x0d,0x0a,'This is a graphic test',0x0d,0x0a,'PRESS ANY KEY TO RETURN!',0x0d,0x0a,0
 ;fs
 fs_write:
 	mov si,whatname
@@ -591,7 +692,7 @@ fs_write:
 	call readl
 	mov bx,filetable
 	mov cx,0
-.findgunmu:;��ĸ
+.findgunmu:;棍母
 	cmp cx,MAX_FILES
 	jge .full
 	mov al,[bx]
@@ -1072,6 +1173,7 @@ capp_fm db 'fm',0
 cal db 'al',0
 cdebug db 'debug',0
 crand db 'gn',0
+cgra db 'gra',0
 
 boot_drive db 0x80
 sector_s db 0
@@ -1144,7 +1246,7 @@ comma db ", ",0
 infoinfo db 0x0A,0x0D,'KunOS version 3(2026/10/18 16:15:23)',0x0A,0x0D,0
 infoinfo2 db '[Update log]',0x0A,0x0D,'games,file manager,etc...',0x0A,0x0D,'colorful text display',0x0A,0x0D,0
 infoinfo3 db '[Personal Website]',0x0A,0x0D,'https://hellopgrmm.github.io/',0x0A,0x0D,'Have fun,bro!',0x0A,0x0D,0x0A,0x0D,0
-infoapl db 'sd calc fm gn',0x0A,0x0D,0
+infoapl db 'sd calc fm gn gra',0x0A,0x0D,0
 
 uinput times 16 db 0
 input times 64 db 0
@@ -1163,4 +1265,4 @@ filetable:
 	times MAX_FILES * FILE_ENTRY_SIZE db 0
 filecount:
 	db 0
-times 17*512-($-$$) db 0
+times 18*512-($-$$) db 0

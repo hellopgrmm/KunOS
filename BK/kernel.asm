@@ -71,17 +71,41 @@ start:
 	mov byte [filecount],0
 ;主循环
 kunkun:
+	call showpmt
+	mov di,input
+	call readl
+	mov si,input
+	call pcmd	
+	jmp kunkun
+showpmt:
+	mov ax,[setprom]
+	cmp ax,1
+	je .custom
+	jne .default
+	ret
+.custom:
+	mov si,pbufp
+	call pcp
+	ret
+.default:
 	mov si,uinput
 	mov al,0x0b
 	call cprintf
 	mov si,pmt
 	mov al,WHITE
 	call cprintf
-	mov di,input
-	call readl
-	mov si,input
-	call pcmd	
-	jmp kunkun
+	ret
+pcp:
+	lodsb
+	or al,al
+	jz .pd
+	cmp al,'*'
+	mov ah,0x0e
+	mov bx,0x0f
+	int 0x10
+	jmp pcp
+.pd:
+	ret
 ;get username
 getusername:
 	mov ax,[userflag]
@@ -204,6 +228,10 @@ pcmd:
 	mov si,cchusr
 	call strcmp
 	jc .chusr
+		
+	mov si,cps
+	call strcmp
+	jc .cpss	
 	
 	mov si,cdate
 	call strcmp
@@ -307,6 +335,14 @@ pcmd:
 	mov al,0x50|WHITE
 	call cprintf
 	ret
+.cpss:
+	mov si,pmtset
+	mov al,0x0d
+	call cprintf
+	mov di,pbufp
+	call readl
+	mov byte [setprom],1
+	ret
 .date:
 	mov ah,0x04
 	int 0x1A
@@ -373,31 +409,31 @@ pcmd:
 	ret		
 .random:
 	pusha
-	mov bx,0x9E03
+	mov bx,0xbc00
 	mov cl,33
 	call runprog
-	jmp 0x0000:0x9E03
+	jmp 0x0000:0xbc00
 	ret	
 .dapp:
 	pusha
-	mov bx,0x9E00
-	mov cl,23
+	mov bx,0xa200
+	mov cl,20
 	call runprog
-	jmp 0x0000:0x9E00
+	jmp 0x0000:0xa200
 	ret
 .calcapp:
 	pusha
-	mov bx,0x9E01
-	mov cl,20
+	mov bx,0xa800
+	mov cl,23
 	call runprog
-	call 0x0000:0x9E01
+	call 0x0000:0xa800
 	ret
 .fmapp:
 	pusha
-	mov bx,0x9E02
+	mov bx,0xae00
 	mov cl,26
 	call runprog
-	call 0x0000:0x9E02
+	call 0x0000:0xae00
 	ret
 .hlt:
 	call pline
@@ -848,10 +884,13 @@ strcmp_pro:
     pop si
     ret
 runprog:
-	;mov ah,0x00
-    ;mov dl,0x00
-    ;int 0x13
-	;jc .lerr
+	mov si,appentering
+	mov al,0x0a
+	call cprintf
+	mov ah,0x00
+    mov dl,0x00
+    int 0x13
+	jc .lerr
 	mov ax,0x0000
 	mov ds,ax
 	;mov bx,0x9E00
@@ -1174,6 +1213,7 @@ cal db 'al',0
 cdebug db 'debug',0
 crand db 'gn',0
 cgra db 'gra',0
+cps db 'ps',0
 
 boot_drive db 0x80
 sector_s db 0
@@ -1204,6 +1244,8 @@ savedds dw 0
 savedes dw 0
 savedss dw 0
 
+pmtset db 'Set prompt style: ',0
+appentering db 'Starting application, please wait a moment...',0x0d,0x0a,0
 dmsg db 'Current date:',0
 lines db '============',0x0D,0x0A,0
 upmt db 'Before using,please enter your username:',0
@@ -1243,8 +1285,8 @@ exampletext db 'Kun',0
 mcfrom db "From:",0
 mcto db "To:",0
 comma db ", ",0
-infoinfo db 0x0A,0x0D,'KunOS version 3(2026/10/18 16:15:23)',0x0A,0x0D,0
-infoinfo2 db '[Update log]',0x0A,0x0D,'games,file manager,etc...',0x0A,0x0D,'colorful text display',0x0A,0x0D,0
+infoinfo db 0x0A,0x0D,'KunOS version 4(2026/10/25 16:27:38)',0x0A,0x0D,0
+infoinfo2 db '[Update log]',0x0A,0x0D,'games,file manager,etc...',0x0A,0x0D,'A BIG BUG FIXED!!! Now applications can run normally in any virtual machines!',0x0A,0x0D,0
 infoinfo3 db '[Personal Website]',0x0A,0x0D,'https://hellopgrmm.github.io/',0x0A,0x0D,'Have fun,bro!',0x0A,0x0D,0x0A,0x0D,0
 infoapl db 'sd calc fm gn gra',0x0A,0x0D,0
 
@@ -1253,10 +1295,10 @@ input times 64 db 0
 fnbuf times 16 db 0
 fcbuf times 256 db 0
 countbuf times 16 db 0
-
+pbufp times 30 db 0
 COUNTFROM dw 0
 COUNTTO dw 0
-
+setprom dw 0
 userflag dw 0
 
 MAX_FILES equ 16

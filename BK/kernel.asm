@@ -281,6 +281,10 @@ pcmd:
 	mov si,cgra
 	call strcmp
 	jc .gratest
+
+	mov si,cha
+	call strcmp
+	jc .hbapp
 	;ok
 	mov si,cal
 	call strcmp
@@ -434,6 +438,13 @@ pcmd:
 	mov cl,26
 	call runprog
 	call 0x0000:0xae00
+	ret
+.hbapp:
+	pusha
+	mov bx,0xc200
+	mov cl,36
+	call runprog
+	call 0x0000:0xc200
 	ret
 .hlt:
 	call pline
@@ -1214,6 +1225,7 @@ cdebug db 'debug',0
 crand db 'gn',0
 cgra db 'gra',0
 cps db 'ps',0
+cha db 'hb',0
 
 boot_drive db 0x80
 sector_s db 0

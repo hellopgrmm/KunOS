@@ -22,11 +22,11 @@
  ;          佛祖保佑             永无BUG
  ;  佛曰:
  ;          写字楼里写字间，写字间里程序员；
- ;          程序人员写程序，又拿程序换酒钱。
+ ;          程序人员写程序，又拿程序换酒钱
  ;          酒醒只在网上坐，酒醉还来网下眠；
- ;          酒醉酒醒日复日，网上网下年复年。
+ ;          酒醉酒醒日复日，网上网下年复年
  ;          但愿老死电脑间，不愿鞠躬老板前；
- ;          奔驰宝马贵者趣，公交自行程序员。
+ ;          奔驰宝马贵者趣，公交自行程序员
  ;          别人笑我忒疯癫，我笑自己命太贱；
  ;          不见满街漂亮妹，哪个归得程序员？
  ;
@@ -74,6 +74,8 @@ kunkun:
 	call showpmt
 	mov di,input
 	call readl
+	cmp byte [input],0
+	je kunkun
 	mov si,input
 	call pcmd	
 	jmp kunkun
@@ -281,10 +283,14 @@ pcmd:
 	mov si,cgra
 	call strcmp
 	jc .gratest
-
+	
 	mov si,cha
 	call strcmp
 	jc .hbapp
+	
+	mov si,che
+	call strcmp
+	jc .hexapp
 	;ok
 	mov si,cal
 	call strcmp
@@ -445,6 +451,13 @@ pcmd:
 	mov cl,36
 	call runprog
 	call 0x0000:0xc200
+	ret
+.hexapp:
+	pusha
+	mov bx,0xc400
+	mov cl,37
+	call runprog
+	jmp 0x0000:0xc400
 	ret
 .hlt:
 	call pline
@@ -1226,6 +1239,7 @@ crand db 'gn',0
 cgra db 'gra',0
 cps db 'ps',0
 cha db 'hb',0
+che db 'hexexec',0
 
 boot_drive db 0x80
 sector_s db 0
@@ -1297,10 +1311,10 @@ exampletext db 'Kun',0
 mcfrom db "From:",0
 mcto db "To:",0
 comma db ", ",0
-infoinfo db 0x0A,0x0D,'KunOS version 4(2026/10/25 16:27:38)',0x0A,0x0D,0
-infoinfo2 db '[Update log]',0x0A,0x0D,'games,file manager,etc...',0x0A,0x0D,'A BIG BUG FIXED!!! Now applications can run normally in any virtual machines!',0x0A,0x0D,0
+infoinfo db 0x0A,0x0D,'KunOS version 4.1(2026/11/8 14:08:27)',0x0A,0x0D,0
+infoinfo2 db '[Update log]',0x0A,0x0D,'Hex programming',0x0A,0x0D,'A BUG FIXED! You will see :-)',0x0A,0x0D,0
 infoinfo3 db '[Personal Website]',0x0A,0x0D,'https://hellopgrmm.github.io/',0x0A,0x0D,'Have fun,bro!',0x0A,0x0D,0x0A,0x0D,0
-infoapl db 'sd calc fm gn gra',0x0A,0x0D,0
+infoapl db 'sd calc fm gn gra hb hexexec',0x0A,0x0D,0
 
 uinput times 16 db 0
 input times 64 db 0
